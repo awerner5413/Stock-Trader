@@ -2,8 +2,9 @@
 # I believe that included the login validations, something to do with formatting USD, etc.
 # TD List
 # see if we were using JS for anything in the finance project
-# Figure out how to use Postgresql and add a database for the login
 # Figure out how to authenticate and use the login with werkzungaifenf (see finance-site and helpers)
+# Figure out how to use Postgresql and add a database for the login
+
 
 from flask import Flask, render_template
 
