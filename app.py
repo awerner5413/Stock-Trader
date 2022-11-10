@@ -11,7 +11,7 @@
 
 import psycopg2
 from flask import Flask, render_template, request
-from auth import require_login
+from authentication import require_login
 
 app = Flask(__name__)
 
