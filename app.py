@@ -10,11 +10,12 @@
 # Graph user cash total over time or per transaction
 
 import psycopg2
-from flask import Flask, render_template
+from flask import Flask, render_template, request
+from auth import require_login
 
 app = Flask(__name__)
 
-db = psycopg2.connect( database="test", user='postgres', password='Atg112523!', host='127.0.0.1', port='5432')
+db = psycopg2.connect(database="test", user='postgres', password='Atg112523!', host='127.0.0.1', port='5432')
 db.autocommit = True
 cursor = db.cursor()
 
@@ -35,5 +36,45 @@ def login():
     return render_template("login.html")
 
 @app.route("/register", methods=["GET", "POST"])
-def register():    
-    return render_template("register.html")
+@require_login
+def register():
+    """Register user"""
+    # Get all variables from registration
+    if request.method == "POST":
+        # Get variables from registration form
+        username = request.form.get("username")
+        password = request.form.get("password")
+        # confirmation = request.form.get("confirmation")
+
+        # Setup SQL for db addition
+        sql = "INSERT INTO login (secret, name) VALUES (%s, %s)"
+        val = (username, password)
+
+        # NEED TO FIGURE OUT HOW TO HANDLE ERRORS DIFFERENT THAN WHAT THEY DID - POP UP ON SCREEN?
+        # Confirm variables meet criteria
+        # if not request.form.get("username") or not request.form.get("password") or not request.form.get("confirmation"):
+        #     return apology("must enter a username or password", 400)
+        # elif password != confirmation:
+        #     return apology("password and confirmation must match", 400)
+
+        # Hash the password and add user to users - FIGURE OUT HOW TO HASH
+        # else:
+        #     # hash = generate_password_hash(password, method='pbkdf2:sha256', salt_length=len(password))
+        #     try:
+        #         db.execute("INSERT INTO users (username, hash) VALUES(?, ?)", username, hash)
+        #     except ValueError as err: # FIGURE OUT HOW TO HANDLE ERROR HERE RATHER THAN RE-LOAD PAGE
+        #         return render_template("register.html")
+        #         # return apology("invalid username and/or password", 400)
+        #     return render_template("login.html")
+        
+        try:
+            print(username, password)
+            cursor.execute(sql, val)
+            db.commit()
+        except ValueError as err: # FIGURE OUT HOW TO HANDLE ERROR HERE RATHER THAN RE-LOAD PAGE, or do but with flash message
+            return render_template("register.html")            
+        return render_template("login.html")
+
+
+    else:
+        return render_template("register.html")
