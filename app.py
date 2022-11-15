@@ -14,10 +14,12 @@
 from flask import Flask, render_template, request, flash, session, redirect
 from authentication import get_db, get_cursor, require_login, lookup, usd
 from werkzeug.security import check_password_hash, generate_password_hash
-import requests
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+
+# Custom filter
+app.jinja_env.filters["usd"] = usd
 
 @app.route('/', methods=["GET", "POST"])
 @require_login
@@ -131,26 +133,9 @@ def launch_quotes():
             price = quote.get("price")
             return render_template("quoted.html", symbol=symbol, name=name, price=price)
     
-    # Re-load page with error message if search was incorrect - can I add more specific errors/messages?
-    flash(error)
-    return render_template("quote.html")    
-
-
-@app.route("/quote", methods=["GET", "POST"])
-@login_required
-def quote():
-    if request.method == "POST":
-        error = None
-        symbol = request.form.get("symbol")
-        quote = lookup(symbol)
-        if quote == None:
-            return apology("invalid ticker symbol", 400)
-        else:
-            symbol = quote.get("symbol")
-            name = quote.get("name")
-            price = quote.get("price")
-            return render_template("quoted.html", symbol=symbol, name=name, price=price)
-
-    # otherwise show the quote screen
+        # Re-load page with error message if search was incorrect - can I add more specific errors/messages?
+        flash(error)
+        return render_template("quote.html")    
+    
     else:
         return render_template("quote.html")

@@ -3,9 +3,7 @@ from functools import wraps
 from flask import redirect, session
 import psycopg2
 import psycopg2.extras
-import os
 import requests
-import pprint
 
 # Make sure API key is set
 # if not os.environ.get("API_KEY"):
@@ -35,7 +33,7 @@ def require_login(func):
 
 def lookup(symbol):
     # Contact API
-    api_key = os.environ.get("API_KEY")
+    api_key = "pk_8660e47a2c9f4e248e52d17122c75714"
     url = f"https://cloud.iexapis.com/stable/stock/{symbol}/quote?token={api_key}"
     response = requests.get(url)    
     quote = response.json()
@@ -50,6 +48,3 @@ def lookup(symbol):
 
 def usd(value):    
     return f"${value:,.2f}"
-
-var = os.environ
-pprint.pprint(dict(var), width = 1)
