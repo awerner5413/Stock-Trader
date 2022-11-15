@@ -1,9 +1,15 @@
 # This is where I will handle my login checks and maybe some other stuff, like helper, but not just like it...
 from functools import wraps
-
+from flask import redirect, session
 import psycopg2
 import psycopg2.extras
-from flask import redirect, session
+import os
+import requests
+import pprint
+
+# Make sure API key is set
+# if not os.environ.get("API_KEY"):
+#     raise RuntimeError("API_KEY not set")
 
 
 def get_db():
@@ -11,10 +17,12 @@ def get_db():
     db.autocommit = True
     return db
 
+
 def get_cursor():
     db = get_db()
     cursor = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
     return cursor
+
 
 def require_login(func):
     @wraps(func)
@@ -23,3 +31,25 @@ def require_login(func):
             return redirect("/login")
         return func(*args, **kwargs)
     return wrapper_func
+
+
+def lookup(symbol):
+    # Contact API
+    api_key = os.environ.get("API_KEY")
+    url = f"https://cloud.iexapis.com/stable/stock/{symbol}/quote?token={api_key}"
+    response = requests.get(url)    
+    quote = response.json()
+
+    # Return quote information
+    return {
+        "name": quote["companyName"],
+        "price": float(quote["latestPrice"]),
+        "symbol": quote["symbol"]
+    }
+
+
+def usd(value):    
+    return f"${value:,.2f}"
+
+var = os.environ
+pprint.pprint(dict(var), width = 1)

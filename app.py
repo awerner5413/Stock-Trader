@@ -1,17 +1,20 @@
 # I need to figure out how to handle all of the things that cs50 built in for me withi helpers
 # I believe that included the login validations, something to do with formatting USD, etc.
 # -- TD List
-# Build registration page, connect to DB, build index/homepage, setup security measures and add standing login check
-# Figure out how to authenticate and use the login with werkzungaifenf (see finance-site and helpers)
+# Build quote page
 # Will need to use Flask request feature to bring in API - documentation has a section
+# See what else I can bring in with API that might be easy (hard stuff can wait for features)
+# ..
+# Clean up DB with better tables and new password and re-establish all code connections
 # User PythonAnywhere when it's time to release to production, they will host the server
 # -- Features to add
 # A script that scrapes a stock ticker for news and displays first 3 articles below
 # Graph user cash total over time or per transaction
 
 from flask import Flask, render_template, request, flash, session, redirect
-from authentication import get_db, get_cursor, require_login
+from authentication import get_db, get_cursor, require_login, lookup, usd
 from werkzeug.security import check_password_hash, generate_password_hash
+import requests
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -112,3 +115,42 @@ def logout():
 
     # Redirect user to login form
     return redirect("/")
+
+
+@app.route('/quote', methods=["GET", "POST"])
+@require_login
+def launch_quotes():
+    if request.method == "POST":
+        symbol = request.form.get("symbol")
+        quote = lookup(symbol)
+        if quote == None:
+            error = "Invalid ticker symbol" 
+        else:
+            symbol = quote.get("symbol")
+            name = quote.get("name")
+            price = quote.get("price")
+            return render_template("quoted.html", symbol=symbol, name=name, price=price)
+    
+    # Re-load page with error message if search was incorrect - can I add more specific errors/messages?
+    flash(error)
+    return render_template("quote.html")    
+
+
+@app.route("/quote", methods=["GET", "POST"])
+@login_required
+def quote():
+    if request.method == "POST":
+        error = None
+        symbol = request.form.get("symbol")
+        quote = lookup(symbol)
+        if quote == None:
+            return apology("invalid ticker symbol", 400)
+        else:
+            symbol = quote.get("symbol")
+            name = quote.get("name")
+            price = quote.get("price")
+            return render_template("quoted.html", symbol=symbol, name=name, price=price)
+
+    # otherwise show the quote screen
+    else:
+        return render_template("quote.html")
