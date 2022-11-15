@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Quoted
+{% endblock %}
+
+{% block main %}
+    <div class="mb-3">
+        <table class="table">
+            <thead>
+                <tr>
+                <th scope="col">Symbol</th>
+                <th scope="col">Name</th>
+                <th scope="col">Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ symbol }}</td>
+                    <td>{{ name }}</td>
+                    <td>{{ price | usd }}</td>
+                </tr>
+            </tbody>
+            </table>
+    </div>
+{% endblock %}
