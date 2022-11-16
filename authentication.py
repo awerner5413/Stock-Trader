@@ -1,9 +1,9 @@
 # This is where I will handle my login checks and maybe some other stuff, like helper, but not just like it...
 from functools import wraps
-from flask import redirect, session
 import psycopg2
 import psycopg2.extras
 import requests
+from flask import redirect, session
 
 # Make sure API key is set
 # if not os.environ.get("API_KEY"):
@@ -11,7 +11,7 @@ import requests
 
 
 def get_db():
-    db = psycopg2.connect(database="test", user='postgres', password='Atg112523!', host='127.0.0.1', port='5432')
+    db = psycopg2.connect(database="stocktrader", user='postgres', password='Atg112523!', host='127.0.0.1', port='5432')
     db.autocommit = True
     return db
 
@@ -35,7 +35,7 @@ def lookup(symbol):
     # Contact API
     api_key = "pk_8660e47a2c9f4e248e52d17122c75714"
     url = f"https://cloud.iexapis.com/stable/stock/{symbol}/quote?token={api_key}"
-    response = requests.get(url)    
+    response = requests.get(url, timeout=0.1)    
     quote = response.json()
 
     # Return quote information
