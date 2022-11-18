@@ -1,5 +1,6 @@
 # -- TD List
 # Build sell page and functions
+# Fix price on portfolio page, it's not showing current total shares, just the last transaction, which mean my update to holdings is incorrect
 # Build hisotry page and functions
 # ..
 # Use PythonAnywhere when it's time to release to production, they will host the server
@@ -259,3 +260,76 @@ def buy():
 
     else:
         return render_template("buy.html")
+
+
+@app.route("/sell", methods=["GET", "POST"])
+@require_login
+def sell():
+    """Sell shares of owned stock and update holdings, transactions, and user cash totals."""
+    cursor = get_cursor()
+
+    # if sale attempted, get variables and perform validation
+    if request.method == "POST":
+        # Validate the amount of shares is a useable number
+        try:
+            shares = int(request.form.get("shares"))
+        except:
+            error = "Enter a valid amount of shares."
+            flash(error)
+            return render_template("sell.html")
+        if shares < 0:
+            error = "Enter a valid amount of shares."
+            flash(error)
+            return render_template("sell.html")
+
+        # Capture ticker symbol and get quote and cost information
+        symbol = request.form.get("symbol")
+        quote = lookup(symbol)
+        price = quote.get("price")
+        earnings = price * shares
+        
+        # Validate user has enough shares to cover sale and update holdings
+        current_holdings_sql = "SELECT * FROM holdings WHERE id = %s AND stock_symbol = %s"
+        cursor.execute(current_holdings_sql, (session["user_id"], symbol,))
+        current_holdings = cursor.fetchall()
+        username = current_holdings[0]["name"]
+        current_shares = current_holdings[0]["shares_amt"]
+        if shares > current_holdings[0]["shares_amt"]:
+            error = "You do not own enough shares to complete this transaction. Please update the amount and try again."
+            flash(error)
+            return redirect("/sell")
+
+        # Delete stock from holdings if user sells all shares, else update shares amount
+        if shares == current_holdings[0]["shares_amt"]:
+            remove_holdings_sql = "DELETE FROM holdings WHERE stock_symbol = %s AND id = %s"
+            cursor.execute(remove_holdings_sql, (symbol, session["user_id"],))
+        else:
+            update_holdings_sql = "UPDATE holdings SET shares_amt = %s WHERE stock_symbol = %s AND id = %s"
+            cursor.execute(update_holdings_sql, (current_shares - shares, symbol, session["user_id"],))
+
+        # Update users cash amount
+        cash_pull_sql = "SELECT cash_total FROM users WHERE id = %s"
+        cursor.execute(cash_pull_sql, (session["user_id"],))
+        current_cash = cursor.fetchall()
+        cash = current_cash[0]["cash_total"]
+
+        cash_update_sql = "UPDATE users SET cash_total = %s WHERE id = %s"
+        cursor.execute(cash_update_sql, (cash + earnings, session["user_id"],))
+
+        # Update transactions
+        sale_transaction_sql = "INSERT INTO transactions (id, name, transaction_type, transaction_amount, stock_symbol, shares_amt, insert_tms) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(sale_transaction_sql, (session["user_id"], username, "Sell", earnings, symbol, shares, datetime.datetime.now(),))
+
+        # If successful, return to holdings
+        return redirect("/")
+
+    # Render sell template with stock options in dropdown
+    else:        
+        current_holdings_sql = "SELECT * FROM holdings WHERE id = %s"
+        cursor.execute(current_holdings_sql, (session["user_id"],))
+        current_holdings = cursor.fetchall() 
+        stocks = []
+        for row in current_holdings:
+            x = row.get("stock_symbol")
+            stocks.append(x)
+        return render_template("sell.html", stocks=stocks)
