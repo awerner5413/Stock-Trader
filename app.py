@@ -1,22 +1,16 @@
-# I need to figure out how to handle all of the things that cs50 built in for me withi helpers
-# I believe that included the login validations, something to do with formatting USD, etc.
 # -- TD List
-# Build buy page
-# Build homepage to show holdings
 # Build sell page and functions
 # Build hisotry page and functions
-# Test to see if database session ends without a close() call
 # ..
-# User PythonAnywhere when it's time to release to production, they will host the server
+# Use PythonAnywhere when it's time to release to production, they will host the server
 # -- Features to add
 # Have the quote information show up on the quote page that still has the search bar so you don't need to go back to search for a new quote
-# A script that scrapes a stock ticker for news and displays first 3 articles below
+# Quoted - A script that scrapes a stock ticker for news and displays first 3 articles below
 # Graph user cash total over time or per transaction
 
 import datetime
 from flask import Flask, flash, redirect, render_template, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
-
 from authentication import get_cursor, get_db, lookup, require_login, usd
 
 app = Flask(__name__)
@@ -27,8 +21,59 @@ app.jinja_env.filters["usd"] = usd
 
 @app.route('/', methods=["GET", "POST"])
 @require_login
-def launch_homepage():    
-    return render_template("index.html")    
+def launch_homepage():
+    """Display logged-in user's stock portfolio"""
+    # Update cash amount if user makes a deposit
+    deposit_sql = "SELECT cash_total FROM users WHERE id = %s"
+    if request.method == "POST":
+        deposit_dollars = float(request.form.get("cash"))
+        if deposit_dollars < 0:
+            error = "You must enter a valid dollar amount."
+            flash(error)
+            return redirect("/")
+
+        cursor = get_cursor()        
+        cursor.execute(deposit_sql, (session["user_id"],))
+        user_info = cursor.fetchall()
+        cash = user_info[0]["cash_total"]
+
+        update_cash_sql = "UPDATE users SET cash_total = %s WHERE id = %s"
+        cursor.execute(update_cash_sql, (cash + deposit_dollars, session["user_id"],))
+        return redirect("/")
+
+    # Get the holdings table into a list
+    else:
+        cursor = get_cursor()
+        portfolio_sql = "SELECT * FROM holdings WHERE id = %s"
+        cursor.execute(portfolio_sql, (session["user_id"],))
+        portfolio = cursor.fetchall()
+        print(portfolio)
+
+        # Loop through each holding and get the price and total through lookup
+        for i in portfolio:
+            final = 0
+            symbol = i["stock_symbol"]
+            shares = i["shares_amt"]
+            quote = lookup(symbol)
+            amount = quote.get("price")
+
+            # Calculate the value of the stock holding and update the current total value
+            value = amount * shares
+            final = final + value
+
+            # Update the dictionary with the price and total amounts to be displayed
+            i.append(amount)
+            i.append(value)
+            # i.update({"price": amount})
+            # i.update({"total": value})      
+        
+        # Get the users current cash value and create a new variable to calculate total value
+        cursor.execute(deposit_sql, (session["user_id"],))
+        user_info = cursor.fetchall()
+        cash = user_info[0]["cash_total"]
+        final = final + cash
+        
+        return render_template("index.html", portfolio=portfolio, cash=cash, final=final)
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -56,13 +101,13 @@ def register():
             error = "Your password and confirmation must match."
 
         # If registration successful, add to login table and send to login page
-        if error is None:            
+        if error is None:
             try:
                 cursor.execute(sql, val)
             except db.IntegrityError:
                 error = "Invalid username or password."
             return render_template("login.html")
-        
+
         flash(error)
 
     else:
