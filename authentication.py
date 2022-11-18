@@ -5,10 +5,6 @@ import psycopg2.extras
 import requests
 from flask import redirect, session
 
-# Make sure API key is set
-# if not os.environ.get("API_KEY"):
-#     raise RuntimeError("API_KEY not set")
-
 
 def get_db():
     db = psycopg2.connect(database="stocktrader", user='postgres', password='Atg112523!', host='127.0.0.1', port='5432')
@@ -35,7 +31,7 @@ def lookup(symbol):
     # Contact API
     api_key = "pk_8660e47a2c9f4e248e52d17122c75714"
     url = f"https://cloud.iexapis.com/stable/stock/{symbol}/quote?token={api_key}"
-    response = requests.get(url, timeout=0.1)    
+    response = requests.get(url, timeout=0.1)
     quote = response.json()
 
     # Return quote information
@@ -46,5 +42,5 @@ def lookup(symbol):
     }
 
 
-def usd(value):    
+def usd(value):
     return f"${value:,.2f}"
