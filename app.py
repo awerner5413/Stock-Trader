@@ -159,11 +159,6 @@ def buy():
         company_name = quote.get("name")
         stock_symbol = quote.get("symbol")
 
-        # MAKE SURE THIS ERROR IS HANDLED - TRY WITHOUT THIS AND SEE IF TRY/EXCEPT HANDLES BLANK, IF SO UPDATE QUOTE
-        # if quote is None:
-        #     error = "Invalid ticker symbol"
-
-
         # Validate the amount of shares is a useable number
         try:
             shares = int(request.form.get("shares"))
