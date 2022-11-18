@@ -1,6 +1,4 @@
 # -- TD List
-# Build sell page and functions
-# Fix price on portfolio page, it's not showing current total shares, just the last transaction, which mean my update to holdings is incorrect
 # Build hisotry page and functions
 # ..
 # Use PythonAnywhere when it's time to release to production, they will host the server
@@ -333,3 +331,14 @@ def sell():
             x = row.get("stock_symbol")
             stocks.append(x)
         return render_template("sell.html", stocks=stocks)
+
+
+@app.route("/history")
+@require_login
+def history():
+    """Show history of all transactions"""
+    cursor = get_cursor()
+    transaction_sql = "SELECT * FROM transactions WHERE id = %s ORDER BY insert_tms"
+    cursor.execute(transaction_sql, (session["user_id"],))
+    transactions = cursor.fetchall()
+    return render_template("history.html", transactions=transactions)

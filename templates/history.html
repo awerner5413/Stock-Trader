@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    History
+{% endblock %}
+
+{% block main %}
+    <div class="mb-3">
+        <table class="table">
+            <thead>
+                <tr>
+                  <th scope="col">Transaction Type</th>
+                  <th scope="col">Transaction Amount</th>
+                  <th scope="col">Stock</th>
+                  <th scope="col">Time</th>
+                  <th scope="col"># of Shares</th>
+                </tr>
+            </thead>
+            <tbody>
+              {% for row in transactions %}
+                <tr>
+                    <td>{{ row["transaction_type"] }}</td>
+                    <td>{{ row["transaction_amount"] | usd }}</td>
+                    <td>{{ row["stock"] }}</td>
+                    <td>{{ row["insert_tms"] }}</td>
+                    <td>{{ row["shares"] }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            </table>
+    </div>
+{% endblock %}
