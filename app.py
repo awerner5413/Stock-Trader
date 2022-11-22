@@ -1,5 +1,5 @@
 # -- TD List
-# Build hisotry page and functions
+# How to log someone out when page closes? flask session?
 # ..
 # Use PythonAnywhere when it's time to release to production, they will host the server
 # -- Features to add
@@ -46,7 +46,6 @@ def launch_homepage():
         portfolio_sql = "SELECT * FROM holdings WHERE id = %s"
         cursor.execute(portfolio_sql, (session["user_id"],))
         portfolio = cursor.fetchall()
-        print(portfolio)
 
         # Loop through each holding and get the price and total through lookup
         for i in portfolio:
@@ -338,7 +337,7 @@ def sell():
 def history():
     """Show history of all transactions"""
     cursor = get_cursor()
-    transaction_sql = "SELECT * FROM transactions WHERE id = %s ORDER BY insert_tms"
+    transaction_sql = "SELECT * FROM transactions WHERE id = %s ORDER BY insert_tms DESC"
     cursor.execute(transaction_sql, (session["user_id"],))
     transactions = cursor.fetchall()
     return render_template("history.html", transactions=transactions)

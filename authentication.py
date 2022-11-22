@@ -31,7 +31,7 @@ def lookup(symbol):
     # Contact API
     api_key = "pk_8660e47a2c9f4e248e52d17122c75714"
     url = f"https://cloud.iexapis.com/stable/stock/{symbol}/quote?token={api_key}"
-    response = requests.get(url, timeout=0.1)
+    response = requests.get(url, timeout=1)
     quote = response.json()
 
     # Return quote information

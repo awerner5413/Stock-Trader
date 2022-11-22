@@ -21,9 +21,9 @@
                 <tr>
                     <td>{{ row["transaction_type"] }}</td>
                     <td>{{ row["transaction_amount"] | usd }}</td>
-                    <td>{{ row["stock"] }}</td>
+                    <td>{{ row["stock_symbol"] }}</td>
                     <td>{{ row["insert_tms"] }}</td>
-                    <td>{{ row["shares"] }}</td>
+                    <td>{{ row["shares_amt"] }}</td>
                 </tr>
               {% endfor %}
             </tbody>
