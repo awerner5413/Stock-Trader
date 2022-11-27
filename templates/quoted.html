@@ -5,13 +5,14 @@
 {% endblock %}
 
 {% block main %}
-    <div class="mb-3">
-        <table class="table">
+<p class="h3">QUOTE</p><br>
+<div class="mb-3">
+        <table class="table table-borderless table-sm">
             <thead>
-                <tr>
-                <th scope="col">Symbol</th>
-                <th scope="col">Name</th>
-                <th scope="col">Price</th>
+                <tr class="header-color">
+                    <th scope="col">Symbol</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Price</th>
                 </tr>
             </thead>
             <tbody>
@@ -22,5 +23,15 @@
                 </tr>
             </tbody>
             </table>
-    </div>
+    </div><br>
+    <hr>
+    <br>
+    <p class="h3">NEWS</p><br>
+    <div class="custom-container">
+        <img src="{{ image }}" class="article-image">
+        <a href="{{ url }}">{{ headline }}</a>
+        <p>{{ timestamp }}</p>        
+        <p>{{ summary }}</p>
+        <p>{{ source }}</p>
+    </div>  
 {% endblock %}

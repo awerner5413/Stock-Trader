@@ -1,16 +1,16 @@
 # -- TD List
-# How to log someone out when page closes? flask session?
+# Update quoted news table to show most recent 3 articles dynamically
+# Have the quote information show up on the quote page that still has the search bar so you don't need to go back to search for a new quote
 # ..
 # Use PythonAnywhere when it's time to release to production, they will host the server
 # -- Features to add
-# Have the quote information show up on the quote page that still has the search bar so you don't need to go back to search for a new quote
-# Quoted - A script that scrapes a stock ticker for news and displays first 3 articles below
+# also under quoted, a chat section for people to discuss investments and more stock information or for people to leave notes to self?
 # Graph user cash total over time or per transaction
 
 import datetime
 from flask import Flask, flash, redirect, render_template, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
-from authentication import get_cursor, get_db, lookup, require_login, usd
+from authentication import get_cursor, get_db, lookup, require_login, usd, stock_news
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -18,7 +18,7 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 # Custom filter
 app.jinja_env.filters["usd"] = usd
 
-@app.route('/', methods=["GET", "POST"])
+@app.route("/", methods=["GET", "POST"])
 @require_login
 def launch_homepage():
     """Display logged-in user's stock portfolio"""
@@ -169,17 +169,45 @@ def launch_quotes():
     if request.method == "POST":
         symbol = request.form.get("symbol")
 
-        try:
-            quote = lookup(symbol)
-        except:
-            error = "Please provide a valid ticker symbol."
-            flash(error)
-            return render_template("quote.html")
-        else:
-            symbol = quote.get("symbol")
-            name = quote.get("name")
-            price = quote.get("price")
-            return render_template("quoted.html", symbol=symbol, name=name, price=price)
+        # try:
+        #     quote = lookup(symbol)
+        # except:
+        #     error = "Please provide a valid ticker symbol."
+        #     flash(error)
+        #     return render_template("quote.html")
+        
+        # try:            
+        #     news = stock_news(symbol)
+        # except:
+        #     error = "STOCK NEWS ISN'T WORKING"
+        #     flash(error)
+        #     return render_template("quote.html")
+        # else:
+            # Quote variables  - POSTPONED UNTIL MY API RESETS
+            # symbol = quote.get("symbol")
+            # name = quote.get("name")
+            # price = quote.get("price")
+        #ONCE READY TO PUBLISH I NEED TO FIX INDENTS TO GO UNDER THE ELSE OF TRY BLOCK
+        name = "Random Company"
+        price = 150.00
+
+            # News variables - POSTPONED UNTIL MY API RESETS
+            # ms = news.get("datetime") / 1000.0
+            # timestamp = datetime.datetime.fromtimestamp(ms).strftime('%Y-%m-%d %H:%M:%S')
+            # headline = news.get("headline")
+            # source = news.get("source")
+            # url = news.get("url")
+            # summary = news.get("summary")
+            # image = news.get("image")
+        timestamp = "2022-11-26"
+        headline = "This is the headline for my news article"
+        source = "Benzinga"
+        url = "https://giphy.com/gifs/donald-trump-if-he-wins-the-white-house-will-become-pixilated-p0YA9SBLKo2ac"
+        summary = "lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah"            
+        image = "https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bmV3c3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60"
+
+        
+        return render_template("quoted.html", symbol=symbol.upper(), name=name, price=price, headline = headline, timestamp = timestamp, source = source, url = url, summary = summary, image = image)
     
     else:
         return render_template("quote.html")

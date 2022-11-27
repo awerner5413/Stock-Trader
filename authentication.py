@@ -1,9 +1,9 @@
 # This is where I will handle my login checks and maybe some other stuff, like helper, but not just like it...
-from functools import wraps
 import psycopg2
 import psycopg2.extras
 import requests
 from flask import redirect, session
+from functools import wraps
 
 
 def get_db():
@@ -41,6 +41,23 @@ def lookup(symbol):
         "symbol": quote["symbol"]
     }
 
+
+def stock_news(symbol):
+    # Contact API
+    api_key = "pk_8660e47a2c9f4e248e52d17122c75714"
+    url = f"https://cloud.iexapis.com/stable/stock/{symbol}/news?token={api_key}"
+    response = requests.get(url, timeout=1)
+    news = response.json()
+
+    # Return news information
+    return {
+        "datetime": news[0]["datetime"],
+        "headline": news[0]["headline"],
+        "source": news[0]["source"],
+        "url": news[0]["url"],
+        "summary": news[0]["summary"],
+        "image": news[0]["image"]
+    }
 
 def usd(value):
     return f"${value:,.2f}"

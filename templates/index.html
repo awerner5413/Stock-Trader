@@ -7,11 +7,11 @@
 {% block main %}
     <h1>Welcome to your portfolio!</h1>
     <img src="https://media.istockphoto.com/id/157308559/photo/money-pile-100-dollar-bills.jpg?s=1024x1024&w=is&k=20&c=IJjHV-iEIwB70mHWbfSxhXNeywhlL4S5pAYNHiDKSZg=">
-    
+    <br><br>
     <div class="mb-3">
         <table class="table">
             <thead>
-                <tr>
+                <tr class="header-color">
                 <th scope="col">Symbol</th>
                 <th scope="col">Name</th>
                 <th scope="col">Shares</th>
@@ -47,7 +47,7 @@
       <form action="/" method="post">
         <div class="mb-3">
             <label for="cash">Would you like to make a deposit?</label><br><br>
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="cash" name="cash" placeholder="Cash" type="number"><br>
+            <input autocomplete="off" class="form-control mx-auto w-auto" id="cash" name="cash" placeholder="Cash" type="number"><br>
         </div>
         <button class="btn btn-primary" type="submit">Add Cash</button>
       </form>
