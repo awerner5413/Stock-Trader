@@ -5,33 +5,43 @@
 {% endblock %}
 
 {% block main %}
-<p class="h3">QUOTE</p><br>
 <div class="mb-3">
-        <table class="table table-borderless table-sm">
-            <thead>
-                <tr class="header-color">
-                    <th scope="col">Symbol</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Price</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{{ symbol }}</td>
-                    <td>{{ name }}</td>
-                    <td>{{ price | usd }}</td>
-                </tr>
-            </tbody>
-            </table>
-    </div><br>
-    <hr>
-    <br>
+    <form action="/quote" method="post">
+        <div class="mb-3">
+            <label for="symbol">Stock Symbol:</label><br><br>
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="symbol" name="symbol" placeholder="Symbol" type="text"><br>
+        </div>
+        <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+</div><br><hr><br><br> 
+<p class="h3">QUOTE</p><br><br>
+<div class="mb-3">
+    <table class="table table-bordered table-sm">
+        <thead>
+            <tr class="header-color">
+                <th scope="col">Symbol</th>
+                <th scope="col">Name</th>
+                <th scope="col">Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ symbol }}</td>
+                <td>{{ name }}</td>
+                <td>{{ price | usd }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+    <br><hr><br><br>
     <p class="h3">NEWS</p><br>
     <div class="custom-container">
-        <img src="{{ image }}" class="article-image">
-        <a href="{{ url }}">{{ headline }}</a>
-        <p>{{ timestamp }}</p>        
-        <p>{{ summary }}</p>
-        <p>{{ source }}</p>
-    </div>  
+        {% for row in temp_dict[0:3] %}
+            <img src={{ row["image"] }} class="article-image">
+            <a href={{ row["url"] }}>{{ row["headline"] }}</a>
+            <p>{{ row["timestamp"] }}</p>
+            <p>{{ row["summary"] }}</p>
+            <p>{{ row["source"] }}</p>
+        {% endfor %}
+    </div>
 {% endblock %}

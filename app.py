@@ -1,11 +1,15 @@
 # -- TD List
-# Update quoted news table to show most recent 3 articles dynamically
-# Have the quote information show up on the quote page that still has the search bar so you don't need to go back to search for a new quote
+# hide API token
+# Hide secret key? see flask docs
+# Validate no duplicate usernames...
+# Make nav bar frozen
+# find new timestamp format for history insert_tms
 # ..
+# Test API usage start of Dec and see if using the page twice adds up too much
 # Use PythonAnywhere when it's time to release to production, they will host the server
 # -- Features to add
-# also under quoted, a chat section for people to discuss investments and more stock information or for people to leave notes to self?
-# Graph user cash total over time or per transaction
+# Graph user cash total per day instead of pic on portfolio page - GOOGLE CHARTS
+# also under quoted, a chat section for people to discuss investments and more stock information or for people to leave notes to self? TWT CHAT APP, REPLICATE, SIDE BAR???
 
 import datetime
 from flask import Flask, flash, redirect, render_template, request, session
@@ -31,13 +35,14 @@ def launch_homepage():
             flash(error)
             return redirect("/")
 
-        cursor = get_cursor()        
+        cursor = get_cursor()
         cursor.execute(deposit_sql, (session["user_id"],))
         user_info = cursor.fetchall()
         cash = user_info[0]["cash_total"]
 
         update_cash_sql = "UPDATE users SET cash_total = %s WHERE id = %s"
         cursor.execute(update_cash_sql, (cash + deposit_dollars, session["user_id"],))
+        flash("Your funds have been successfully deposited!")
         return redirect("/")
 
     # Get the holdings table into a list
@@ -46,37 +51,52 @@ def launch_homepage():
         portfolio_sql = "SELECT * FROM holdings WHERE id = %s"
         cursor.execute(portfolio_sql, (session["user_id"],))
         portfolio = cursor.fetchall()
+        tickers = []
+        ticker_totals = []
+        print("LOOK HERE")
+        print(portfolio)
+
+        if not portfolio:
+            flash("Please purchase your first stock.")
+            return redirect("/buy")
+        else:
 
         # Loop through each holding and get the price and total through lookup
-        for i in portfolio:
-            final = 0
-            symbol = i["stock_symbol"]
-            shares = i["shares_amt"]
-            quote = lookup(symbol)
-            amount = quote.get("price")
+            for i in portfolio:
+                final = 0
+                symbol = i["stock_symbol"]
+                shares = i["shares_amt"]
+                quote = lookup(symbol)
+                amount = quote.get("price")
 
-            # Calculate the value of the stock holding and update the current total value
-            value = amount * shares
-            final = final + value
+                # Calculate the value of the stock holding and update the current total value
+                value = round(amount * shares, 2)
+                final = final + value
 
-            # Update the dictionary with the price and total amounts to be displayed
-            i.append(amount)
-            i.append(value)
-            # i.update({"price": amount})
-            # i.update({"total": value})      
-        
-        # Get the users current cash value and create a new variable to calculate total value
-        cursor.execute(deposit_sql, (session["user_id"],))
-        user_info = cursor.fetchall()
-        cash = user_info[0]["cash_total"]
-        final = final + cash
-        
-        return render_template("index.html", portfolio=portfolio, cash=cash, final=final)
+                # Update the dictionary with the price and total amounts to be displayed
+                i.append(amount)
+                i.append(value)
+
+                # Update lists to create pie chart
+                tickers.append(symbol)
+                ticker_totals.append(value)
+            
+            # Get the users current cash value and create a new variable to calculate total value
+            cursor.execute(deposit_sql, (session["user_id"],))
+            user_info = cursor.fetchall()
+            cash = user_info[0]["cash_total"]
+            final = final + cash
+            
+            # Create dataset to send to chart
+            data = list(zip(tickers, ticker_totals))
+            labels = [row[0] for row in data]
+            values = [row[1] for row in data]
+
+            return render_template("index.html", portfolio=portfolio, cash=cash, final=final, labels=labels, values=values)
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-
     # Get all variables from registration
     if request.method == "POST":
         # Get variables from registration form and hash password
@@ -89,8 +109,8 @@ def register():
         # Setup SQL for db addition
         db = get_db()
         cursor = get_cursor()
-        sql = "INSERT INTO users (secret, name) VALUES (%s, %s)"
-        val = (hashed, username)
+        sql = "INSERT INTO users (secret, name, cash_total) VALUES (%s, %s, %s)"
+        val = (hashed, username, 10000.00)
 
         # Confirm variables meet criteria
         if not request.form.get("username") or not request.form.get("password") or not request.form.get("confirmation"):
@@ -104,9 +124,11 @@ def register():
                 cursor.execute(sql, val)
             except db.IntegrityError:
                 error = "Invalid username or password."
+            flash("Thanks for joining StockTrader! As a thank you, we have given you $10,000 - please log in and start trading!")
             return render_template("login.html")
 
         flash(error)
+        return redirect("/register")
 
     else:
         return render_template("register.html")
@@ -163,6 +185,20 @@ def logout():
     return redirect("/")
 
 
+# THIS IS TEMPORARY DUMMY DATA TO POPULATE QUOTED PAGE WHILE API DOWN
+temp_dict = [{"image":"https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bmV3c3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60", 
+            "timestamp": "2022-11-26", "headline": "This is the headline for my news article", "source": "Benzinga", "url": "https://giphy.com/gifs/donald-trump-if-he-wins-the-white-house-will-become-pixilated-p0YA9SBLKo2ac",
+            "summary": "lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah"},
+            {"image":"https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bmV3c3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60", 
+            "timestamp": "2022-11-26", "headline": "This is the headline for my news article", "source": "Benzinga", "url": "https://giphy.com/gifs/donald-trump-if-he-wins-the-white-house-will-become-pixilated-p0YA9SBLKo2ac",
+            "summary": "lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah"},
+            {"image":"https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bmV3c3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60", 
+            "timestamp": "2022-11-26", "headline": "This is the headline for my news article", "source": "Benzinga", "url": "https://giphy.com/gifs/donald-trump-if-he-wins-the-white-house-will-become-pixilated-p0YA9SBLKo2ac",
+            "summary": "lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah"},
+            {"image":"https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bmV3c3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60", 
+            "timestamp": "2022-11-26", "headline": "This is the headline for my news article", "source": "Benzinga", "url": "https://giphy.com/gifs/donald-trump-if-he-wins-the-white-house-will-become-pixilated-p0YA9SBLKo2ac",
+            "summary": "lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah"}]
+
 @app.route('/quote', methods=["GET", "POST"])
 @require_login
 def launch_quotes():
@@ -199,16 +235,7 @@ def launch_quotes():
             # url = news.get("url")
             # summary = news.get("summary")
             # image = news.get("image")
-        timestamp = "2022-11-26"
-        headline = "This is the headline for my news article"
-        source = "Benzinga"
-        url = "https://giphy.com/gifs/donald-trump-if-he-wins-the-white-house-will-become-pixilated-p0YA9SBLKo2ac"
-        summary = "lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah"            
-        image = "https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bmV3c3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60"
-
-        
-        return render_template("quoted.html", symbol=symbol.upper(), name=name, price=price, headline = headline, timestamp = timestamp, source = source, url = url, summary = summary, image = image)
-    
+        return render_template("quoted.html", symbol=symbol.upper(), name=name, price=price, temp_dict = temp_dict)
     else:
         return render_template("quote.html")
 
@@ -226,7 +253,7 @@ def buy():
         except:
             error = "Please provide a valid ticker symbol."
             flash(error)
-            return render_template("buy.html")        
+            return redirect("/buy")
         company_name = quote.get("name")
         stock_symbol = quote.get("symbol")
 
@@ -236,12 +263,12 @@ def buy():
         except:
             error = "Enter a valid amount of shares."
             flash(error)
-            return render_template("buy.html")
+            return redirect("/buy")
         
         if shares < 0:
             error = "Enter a valid amount of shares."
             flash(error)
-            return render_template("buy.html")
+            return redirect("/buy")
         
         # Prepare database connection to save transaction
         cursor = get_cursor()
@@ -256,7 +283,7 @@ def buy():
         if price > cash:
             error = "You do not have enough funds to make this purchase."
             flash(error)
-            return render_template("buy.html")
+            return redirect("/buy")
         
         else:
             # Add purchase to transactions table
@@ -281,10 +308,16 @@ def buy():
                 amount = int(amount_check[0]["shares_amt"])
                 shares_update_sql = "UPDATE holdings SET shares_amt = %s WHERE id = %s AND stock_symbol = %s"
                 cursor.execute(shares_update_sql, (shares + amount, session["user_id"], stock_symbol,))
-            return redirect("/")
+            flash("Your purchase was successful!")
+            return redirect("/buy")
 
     else:
-        return render_template("buy.html")
+        buy_cash_sql = "SELECT cash_total FROM users WHERE id = %s"
+        cursor = get_cursor()
+        cursor.execute(buy_cash_sql, (session["user_id"],))
+        user_info = cursor.fetchall()
+        cash = user_info[0]["cash_total"]
+        return render_template("buy.html", cash=cash)
 
 
 @app.route("/sell", methods=["GET", "POST"])
@@ -305,22 +338,17 @@ def sell():
         if shares < 0:
             error = "Enter a valid amount of shares."
             flash(error)
-            return render_template("sell.html")
-
-        # Capture ticker symbol and get quote and cost information
-        symbol = request.form.get("symbol")
-        quote = lookup(symbol)
-        price = quote.get("price")
-        earnings = price * shares
+            return render_template("sell.html")        
         
         # Validate user has enough shares to cover sale and update holdings
+        symbol = request.form.get("symbol")
         current_holdings_sql = "SELECT * FROM holdings WHERE id = %s AND stock_symbol = %s"
         cursor.execute(current_holdings_sql, (session["user_id"], symbol,))
         current_holdings = cursor.fetchall()
         username = current_holdings[0]["name"]
         current_shares = current_holdings[0]["shares_amt"]
         if shares > current_holdings[0]["shares_amt"]:
-            error = "You do not own enough shares to complete this transaction. Please update the amount and try again."
+            error = f"You do not own enough shares to complete this transaction. You currently have {current_shares} share(s). Please update the amount and try again."
             flash(error)
             return redirect("/sell")
 
@@ -333,6 +361,9 @@ def sell():
             cursor.execute(update_holdings_sql, (current_shares - shares, symbol, session["user_id"],))
 
         # Update users cash amount
+        quote = lookup(symbol)
+        price = quote.get("price")
+        earnings = price * shares
         cash_pull_sql = "SELECT cash_total FROM users WHERE id = %s"
         cursor.execute(cash_pull_sql, (session["user_id"],))
         current_cash = cursor.fetchall()
@@ -345,8 +376,8 @@ def sell():
         sale_transaction_sql = "INSERT INTO transactions (id, name, transaction_type, transaction_amount, stock_symbol, shares_amt, insert_tms) VALUES (%s, %s, %s, %s, %s, %s, %s)"
         cursor.execute(sale_transaction_sql, (session["user_id"], username, "Sell", earnings, symbol, shares, datetime.datetime.now(),))
 
-        # If successful, return to holdings
-        return redirect("/")
+        flash("Your transaction was successful!")
+        return redirect("/sell")
 
     # Render sell template with stock options in dropdown
     else:        
@@ -365,7 +396,7 @@ def sell():
 def history():
     """Show history of all transactions"""
     cursor = get_cursor()
-    transaction_sql = "SELECT * FROM transactions WHERE id = %s ORDER BY insert_tms DESC"
+    transaction_sql = "SELECT transaction_id, id, name, transaction_type, transaction_amount, stock_symbol, shares_amt, insert_tms FROM transactions WHERE id = %s ORDER BY insert_tms DESC"
     cursor.execute(transaction_sql, (session["user_id"],))
     transactions = cursor.fetchall()
     return render_template("history.html", transactions=transactions)

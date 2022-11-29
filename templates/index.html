@@ -6,8 +6,31 @@
 
 {% block main %}
     <h1>Welcome to your portfolio!</h1>
-    <img src="https://media.istockphoto.com/id/157308559/photo/money-pile-100-dollar-bills.jpg?s=1024x1024&w=is&k=20&c=IJjHV-iEIwB70mHWbfSxhXNeywhlL4S5pAYNHiDKSZg=">
     <br><br>
+
+    <!-- Creating the holdings pie chart -->
+    <div class="chart">
+      <canvas id="myDoughnut"></canvas>
+    </div>    
+    <script>
+        const ctx = document.getElementById("myDoughnut").getContext("2d");
+        new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: {{ labels | safe }},
+            datasets: [
+              {
+                label: "Value",
+                data: {{ values | safe }},
+                fill: false,
+                lineTension: 0.1,
+                hoverOffset: 4
+              }
+            ]
+          }
+        });
+    </script><br><br>
+
     <div class="mb-3">
         <table class="table">
             <thead>

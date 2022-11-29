@@ -5,15 +5,21 @@
 {% endblock %}
 
 {% block main %}
-    <form action="/buy" method="post">
-        <div class="mb-3">
-            <label for="symbol">Stock Symbol:</label><br><br>
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="symbol" name="symbol" placeholder="Symbol" type="text"><br>
+    <div class="mb-3">
+        <p class="table">Your current cash balance is: {{ cash | usd }}</p>
+    </div><br>
+    <form action="/buy" method="post" class="form">
+        <div class="buy-layout">
+            <div>
+                <label for="symbol">Stock Symbol:</label><br><br>
+                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="symbol" name="symbol" placeholder="Symbol" type="text"><br>            
+            </div>
+            <div>
+                <label for="shares">Shares:</label><br><br>
+                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="shares" name="shares" placeholder="Shares" type="number"><br>
+            </div>            
         </div>
-        <div class="mb-3">
-            <label for="shares">Shares:</label><br><br>
-            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="shares" name="shares" placeholder="Shares" type="number"><br>
-        </div>
-        <button class="btn btn-primary" type="submit">Place Order</button>
+        <br>
+        <button class="btn btn-primary" type="submit">Place Order</button>        
     </form>
 {% endblock %}

@@ -51,5 +51,21 @@ nav .navbar-brand .green
 }
 
 .header-color {
-    color: #537fbe;
+    color: #f5b82e;
+}
+
+.buy-layout {
+    display: grid;
+    grid-template-columns: auto auto;
+}
+
+.form {
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+.chart {
+    width: 30%;
+    height: 30%;
+    margin: auto;
 }
