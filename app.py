@@ -1,12 +1,8 @@
 # -- TD List
 # hide API token
 # Hide secret key? see flask docs
-# list suggestions for stocks to buy on buy page
-# Make nav bar frozen
-# find new timestamp format for history insert_tms
 # ..
 # Test API usage start of Dec and see if using the page twice adds up too much
-# Use PythonAnywhere when it's time to release to production, they will host the server
 # -- Features to add
 # also under quoted, a chat section for people to discuss investments and more stock information or for people to leave notes to self? TWT CHAT APP, REPLICATE, SIDE BAR???
 
@@ -403,7 +399,7 @@ def sell():
 def history():
     """Show history of all transactions"""
     cursor = get_cursor()
-    transaction_sql = "SELECT transaction_id, id, name, transaction_type, transaction_amount, stock_symbol, shares_amt, insert_tms FROM transactions WHERE id = %s ORDER BY insert_tms DESC"
+    transaction_sql = "SELECT transaction_id, id, name, transaction_type, transaction_amount, stock_symbol, shares_amt, insert_tms::timestamp FROM transactions WHERE id = %s ORDER BY insert_tms DESC"
     cursor.execute(transaction_sql, (session["user_id"],))
     transactions = cursor.fetchall()
     return render_template("history.html", transactions=transactions)

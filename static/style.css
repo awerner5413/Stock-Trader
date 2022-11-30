@@ -2,7 +2,17 @@ body {
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
+.main {
+    margin-top: 50px;
+}
+
 /* Size for brand */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
 nav .navbar-brand
 {
     font-size: xx-large;
@@ -67,9 +77,5 @@ nav .navbar-brand .green
 .chart {
     width: 30%;
     height: 30%;
-    margin: auto;
-}
-
-.stock-table {
     margin: auto;
 }
