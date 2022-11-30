@@ -1,4 +1,3 @@
-# This is where I will handle my login checks and maybe some other stuff, like helper, but not just like it...
 import psycopg2
 import psycopg2.extras
 import requests
@@ -48,6 +47,7 @@ def stock_news(symbol):
     url = f"https://cloud.iexapis.com/stable/stock/{symbol}/news?token={api_key}"
     response = requests.get(url, timeout=1)
     news = response.json()
+    print(news)
 
     # Return news information
     return {

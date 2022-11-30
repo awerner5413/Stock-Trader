@@ -1,14 +1,13 @@
 # -- TD List
 # hide API token
 # Hide secret key? see flask docs
-# Validate no duplicate usernames...
+# list suggestions for stocks to buy on buy page
 # Make nav bar frozen
 # find new timestamp format for history insert_tms
 # ..
 # Test API usage start of Dec and see if using the page twice adds up too much
 # Use PythonAnywhere when it's time to release to production, they will host the server
 # -- Features to add
-# Graph user cash total per day instead of pic on portfolio page - GOOGLE CHARTS
 # also under quoted, a chat section for people to discuss investments and more stock information or for people to leave notes to self? TWT CHAT APP, REPLICATE, SIDE BAR???
 
 import datetime
@@ -104,13 +103,7 @@ def register():
         password = request.form.get("password")
         hashed = generate_password_hash(password, method='pbkdf2:sha256', salt_length=len(password))
         confirmation = request.form.get("confirmation")
-        error = None
-
-        # Setup SQL for db addition
-        db = get_db()
-        cursor = get_cursor()
-        sql = "INSERT INTO users (secret, name, cash_total) VALUES (%s, %s, %s)"
-        val = (hashed, username, 10000.00)
+        error = None        
 
         # Confirm variables meet criteria
         if not request.form.get("username") or not request.form.get("password") or not request.form.get("confirmation"):
@@ -118,13 +111,27 @@ def register():
         elif password != confirmation:
             error = "Your password and confirmation must match."
 
+        # Confirm no duplicate usernames
+        cursor = get_cursor()
+        duplicate_user_sql = "SELECT * FROM users WHERE name = %s"
+        cursor.execute(duplicate_user_sql, (username,))
+        dup_check = cursor.fetchall()
+        if len(dup_check) == 1:
+            error = "That username already exists. Please try again with a different username."
+            flash(error)
+            return redirect("/register")
+
+        # Setup SQL for db addition
+        sql = "INSERT INTO users (secret, name, cash_total) VALUES (%s, %s, %s)"
+        val = (hashed, username, 10000.00)
+        
         # If registration successful, add to login table and send to login page
         if error is None:
             try:
                 cursor.execute(sql, val)
             except db.IntegrityError:
                 error = "Invalid username or password."
-            flash("Thanks for joining StockTrader! As a thank you, we have given you $10,000 - please log in and start trading!")
+            flash(f"Welcome to StockTrader, {username}! As a thank you, we have given you $10,000 - please log in and start trading!")
             return render_template("login.html")
 
         flash(error)
