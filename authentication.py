@@ -1,12 +1,14 @@
 import psycopg2
 import psycopg2.extras
 import requests
+import config
 from flask import redirect, session
 from functools import wraps
 
 
 def get_db():
-    db = psycopg2.connect(database="stocktrader", user='postgres', password='Atg112523!', host='127.0.0.1', port='5432')
+    db_password = config.db_password
+    db = psycopg2.connect(database="stocktrader", user='postgres', password=db_password, host='127.0.0.1', port='5432')
     db.autocommit = True
     return db
 
@@ -28,8 +30,7 @@ def require_login(func):
 
 def lookup(symbol):
     # Contact API
-    api_key = "pk_8660e47a2c9f4e248e52d17122c75714"
-    url = f"https://cloud.iexapis.com/stable/stock/{symbol}/quote?token={api_key}"
+    url = f"https://cloud.iexapis.com/stable/stock/{symbol}/quote?token={config.api_key}"
     response = requests.get(url, timeout=1)
     quote = response.json()
 
@@ -43,8 +44,7 @@ def lookup(symbol):
 
 def stock_news(symbol):
     # Contact API
-    api_key = "pk_8660e47a2c9f4e248e52d17122c75714"
-    url = f"https://cloud.iexapis.com/stable/stock/{symbol}/news?token={api_key}"
+    url = f"https://cloud.iexapis.com/stable/stock/{symbol}/news?token={config.api_key}"
     response = requests.get(url, timeout=1)
     news = response.json()
     print(news)

@@ -1,11 +1,3 @@
-# -- TD List
-# hide API token
-# Hide secret key? see flask docs
-# ..
-# Test API usage start of Dec and see if using the page twice adds up too much
-# -- Features to add
-# also under quoted, a chat section for people to discuss investments and more stock information or for people to leave notes to self? TWT CHAT APP, REPLICATE, SIDE BAR???
-
 import datetime
 from flask import Flask, flash, redirect, render_template, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -48,8 +40,6 @@ def launch_homepage():
         portfolio = cursor.fetchall()
         tickers = []
         ticker_totals = []
-        print("LOOK HERE")
-        print(portfolio)
 
         if not portfolio:
             flash("Please purchase your first stock.")
