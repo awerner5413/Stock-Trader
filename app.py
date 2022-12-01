@@ -178,57 +178,31 @@ def logout():
     return redirect("/")
 
 
-# THIS IS TEMPORARY DUMMY DATA TO POPULATE QUOTED PAGE WHILE API DOWN
-temp_dict = [{"image":"https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bmV3c3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60", 
-            "timestamp": "2022-11-26", "headline": "This is the headline for my news article", "source": "Benzinga", "url": "https://giphy.com/gifs/donald-trump-if-he-wins-the-white-house-will-become-pixilated-p0YA9SBLKo2ac",
-            "summary": "lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah"},
-            {"image":"https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bmV3c3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60", 
-            "timestamp": "2022-11-26", "headline": "This is the headline for my news article", "source": "Benzinga", "url": "https://giphy.com/gifs/donald-trump-if-he-wins-the-white-house-will-become-pixilated-p0YA9SBLKo2ac",
-            "summary": "lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah"},
-            {"image":"https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bmV3c3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60", 
-            "timestamp": "2022-11-26", "headline": "This is the headline for my news article", "source": "Benzinga", "url": "https://giphy.com/gifs/donald-trump-if-he-wins-the-white-house-will-become-pixilated-p0YA9SBLKo2ac",
-            "summary": "lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah"},
-            {"image":"https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8bmV3c3xlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60", 
-            "timestamp": "2022-11-26", "headline": "This is the headline for my news article", "source": "Benzinga", "url": "https://giphy.com/gifs/donald-trump-if-he-wins-the-white-house-will-become-pixilated-p0YA9SBLKo2ac",
-            "summary": "lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah lorem ipsum blah blah blah blah blah"}]
-
 @app.route('/quote', methods=["GET", "POST"])
 @require_login
 def launch_quotes():
     if request.method == "POST":
         symbol = request.form.get("symbol")
 
-        # try:
-        #     quote = lookup(symbol)
-        # except:
-        #     error = "Please provide a valid ticker symbol."
-        #     flash(error)
-        #     return render_template("quote.html")
+        try:
+            quote = lookup(symbol)
+        except:
+            error = "Please provide a valid ticker symbol."
+            flash(error)
+            return render_template("quote.html")
         
-        # try:            
-        #     news = stock_news(symbol)
-        # except:
-        #     error = "STOCK NEWS ISN'T WORKING"
-        #     flash(error)
-        #     return render_template("quote.html")
-        # else:
-            # Quote variables  - POSTPONED UNTIL MY API RESETS
-            # symbol = quote.get("symbol")
-            # name = quote.get("name")
-            # price = quote.get("price")
-        #ONCE READY TO PUBLISH I NEED TO FIX INDENTS TO GO UNDER THE ELSE OF TRY BLOCK
-        name = "Random Company"
-        price = 150.00
-
-            # News variables - POSTPONED UNTIL MY API RESETS
-            # ms = news.get("datetime") / 1000.0
-            # timestamp = datetime.datetime.fromtimestamp(ms).strftime('%Y-%m-%d %H:%M:%S')
-            # headline = news.get("headline")
-            # source = news.get("source")
-            # url = news.get("url")
-            # summary = news.get("summary")
-            # image = news.get("image")
-        return render_template("quoted.html", symbol=symbol.upper(), name=name, price=price, temp_dict = temp_dict)
+        try:            
+            results = stock_news(symbol)
+            news = []
+            news.append(results)
+        except:
+            error = "STOCK NEWS ISN'T WORKING"
+            flash(error)
+            return render_template("quote.html")
+        else:
+            name = quote.get("name")
+            price = quote.get("price")
+            return render_template("quoted.html", symbol=symbol.upper(), name=name, price=price, news=news)
     else:
         return render_template("quote.html")
 

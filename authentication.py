@@ -2,6 +2,7 @@ import psycopg2
 import psycopg2.extras
 import requests
 import config
+import datetime
 from flask import redirect, session
 from functools import wraps
 
@@ -44,14 +45,12 @@ def lookup(symbol):
 
 def stock_news(symbol):
     # Contact API
-    url = f"https://cloud.iexapis.com/stable/stock/{symbol}/news?token={config.api_key}"
+    url = f"https://cloud.iexapis.com/stable/stock/{symbol}/news/last/1?token={config.api_key}"
     response = requests.get(url, timeout=1)
     news = response.json()
-    print(news)
 
     # Return news information
     return {
-        "datetime": news[0]["datetime"],
         "headline": news[0]["headline"],
         "source": news[0]["source"],
         "url": news[0]["url"],

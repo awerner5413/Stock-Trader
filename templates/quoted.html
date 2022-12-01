@@ -34,12 +34,11 @@
     </table>
 </div>
     <br><hr><br><br>
-    <p class="h3">NEWS</p><br>
+    <p class="h3">RECENT NEWS</p><br>
     <div class="custom-container">
-        {% for row in temp_dict[0:3] %}
+        {% for row in news %}
             <img src={{ row["image"] }} class="article-image">
             <a href={{ row["url"] }}>{{ row["headline"] }}</a>
-            <p>{{ row["timestamp"] }}</p>
             <p>{{ row["summary"] }}</p>
             <p>{{ row["source"] }}</p>
         {% endfor %}
