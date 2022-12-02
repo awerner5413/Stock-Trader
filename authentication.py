@@ -2,7 +2,6 @@ import psycopg2
 import psycopg2.extras
 import requests
 import config
-import datetime
 from flask import redirect, session
 from functools import wraps
 

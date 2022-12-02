@@ -1,7 +1,7 @@
 import datetime
 from flask import Flask, flash, redirect, render_template, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
-from authentication import get_cursor, get_db, lookup, require_login, usd, stock_news
+from authentication import get_cursor, lookup, require_login, usd, stock_news
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
