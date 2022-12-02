@@ -1,13 +1,17 @@
 import psycopg2
 import psycopg2.extras
 import requests
-import config
+import os
+from dotenv import load_dotenv
 from flask import redirect, session
 from functools import wraps
 
 
+def configure():
+    load_dotenv()
+
 def get_db():
-    db_password = config.db_password
+    db_password = os.getenv('db_password')
     db = psycopg2.connect(database="stocktrader", user='postgres', password=db_password, host='127.0.0.1', port='5432')
     db.autocommit = True
     return db
@@ -30,7 +34,7 @@ def require_login(func):
 
 def lookup(symbol):
     # Contact API
-    url = f"https://cloud.iexapis.com/stable/stock/{symbol}/quote?token={config.api_key}"
+    url = f"https://cloud.iexapis.com/stable/stock/{symbol}/quote?token={os.getenv('api_key')}"
     response = requests.get(url, timeout=1)
     quote = response.json()
 
@@ -44,7 +48,7 @@ def lookup(symbol):
 
 def stock_news(symbol):
     # Contact API
-    url = f"https://cloud.iexapis.com/stable/stock/{symbol}/news/last/1?token={config.api_key}"
+    url = f"https://cloud.iexapis.com/stable/stock/{symbol}/news/last/1?token={os.getenv('api_key')}"
     response = requests.get(url, timeout=1)
     news = response.json()
 
