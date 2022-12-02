@@ -1,0 +1,1 @@
+web funicorn wsgi:app
