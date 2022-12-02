@@ -11,8 +11,7 @@ def configure():
     load_dotenv()
 
 def get_db():
-    db_password = os.getenv('db_password')
-    db = psycopg2.connect(database="stocktrader", user='postgres', password=db_password, host='127.0.0.1', port='5432')
+    db = psycopg2.connect(database="postgresql-clean-78772", sslmode='require')
     db.autocommit = True
     return db
 
