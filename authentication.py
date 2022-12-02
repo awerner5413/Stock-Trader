@@ -2,13 +2,9 @@ import psycopg2
 import psycopg2.extras
 import requests
 import os
-from dotenv import load_dotenv
 from flask import redirect, session
 from functools import wraps
 
-
-def configure():
-    load_dotenv()
 
 def get_db():
     db_url = os.environ['DATABASE_URL']

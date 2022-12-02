@@ -1,7 +1,7 @@
 import datetime
 from flask import Flask, flash, redirect, render_template, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
-from authentication import get_cursor, lookup, require_login, usd, stock_news, configure
+from authentication import get_cursor, lookup, require_login, usd, stock_news
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)

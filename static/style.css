@@ -7,11 +7,11 @@ body {
 }
 
 /* Size for brand */
-.navbar {
+/* .navbar {
     position: fixed;
     top: 0;
     width: 100%;
-}
+} */
 
 nav .navbar-brand
 {
