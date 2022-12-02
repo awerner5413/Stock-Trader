@@ -11,7 +11,8 @@ def configure():
     load_dotenv()
 
 def get_db():
-    db = psycopg2.connect(database="postgresql-clean-78772", sslmode='require')
+    db_url = os.environ['DATABASE_URL']
+    db = psycopg2.connect(db_url, sslmode='require')
     db.autocommit = True
     return db
 
