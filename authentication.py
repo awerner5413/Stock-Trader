@@ -35,6 +35,7 @@ def require_login(func):
 def lookup(symbol):
     # Contact API
     token = os.environ['API_KEY']
+    print(token)
     url = f"https://cloud.iexapis.com/stable/stock/{symbol}/quote?token={token}"
     response = requests.get(url, timeout=1)
     quote = response.json()
