@@ -34,7 +34,8 @@ def require_login(func):
 
 def lookup(symbol):
     # Contact API
-    url = f"https://cloud.iexapis.com/stable/stock/{symbol}/quote?token={os.getenv('api_key')}"
+    token = os.environ['API_KEY']
+    url = f"https://cloud.iexapis.com/stable/stock/{symbol}/quote?token={token}"
     response = requests.get(url, timeout=1)
     quote = response.json()
 
@@ -48,7 +49,8 @@ def lookup(symbol):
 
 def stock_news(symbol):
     # Contact API
-    url = f"https://cloud.iexapis.com/stable/stock/{symbol}/news/last/1?token={os.getenv('api_key')}"
+    token = os.environ['API_KEY']
+    url = f"https://cloud.iexapis.com/stable/stock/{symbol}/news/last/1?token={token}"
     response = requests.get(url, timeout=1)
     news = response.json()
 
