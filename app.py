@@ -1,8 +1,8 @@
 import datetime
 from flask import Flask, flash, redirect, render_template, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
-from authentication import get_cursor, lookup, require_login, usd, stock_news
 from werkzeug.middleware.proxy_fix import ProxyFix
+from authentication import get_cursor, lookup, require_login, usd, stock_news
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -87,10 +87,11 @@ def launch_homepage():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    """Add the entered user to the database while validating the password matches the confirmation entered and the username is not a duplicate"""
     # Get all variables from registration
     if request.method == "POST":
         # Get variables from registration form and hash password
-        username = request.form.get("username")
+        username = request.form.get("username").lower()
         password = request.form.get("password")
         hashed = generate_password_hash(password, method='pbkdf2:sha256', salt_length=len(password))
         confirmation = request.form.get("confirmation")
@@ -134,6 +135,7 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    """Logout any current user and then login the submitted user by checking username and password to the database of registered users"""
     # Forget any user_id
     session.clear()
 
@@ -141,7 +143,7 @@ def login():
         error = None
         cursor = get_cursor()
         sql = "SELECT * FROM users WHERE name = %s"
-        username = request.form.get("username")
+        username = request.form.get("username").lower()
         password = request.form.get("password")
 
         # Ensure username and password was submitted
@@ -175,7 +177,7 @@ def login():
 
 @app.route("/logout")
 def logout():
-
+    """Logout the current user"""
     # Forget any user_id
     session.clear()
 
@@ -186,6 +188,7 @@ def logout():
 @app.route('/quote', methods=["GET", "POST"])
 @require_login
 def launch_quotes():
+    """Submit the entered ticker symbol to the API to return a price quote and a news article"""
     if request.method == "POST":
         symbol = request.form.get("symbol")
 
@@ -215,6 +218,8 @@ def launch_quotes():
 @app.route("/buy", methods=["GET", "POST"])
 @require_login
 def buy():
+    """Check the price of the entered stock against the API and check the user's cash balance to confirm enough funds to make the purchase
+       Check and return the users current cash value"""
     if request.method == "POST":
         error = None
         symbol = request.form.get("symbol")
@@ -237,7 +242,8 @@ def buy():
             flash(error)
             return redirect("/buy")
         
-        if shares < 0:
+        print(shares)
+        if shares <= 0:
             error = "Enter a valid amount of shares."
             flash(error)
             return redirect("/buy")
@@ -295,7 +301,8 @@ def buy():
 @app.route("/sell", methods=["GET", "POST"])
 @require_login
 def sell():
-    """Sell shares of owned stock and update holdings, transactions, and user cash totals."""
+    """Sell shares of owned stock and update holdings, transactions, and user cash totals.
+       Check the users current holdings and return the ticker symbol of any owned stock to the sell menu"""
     cursor = get_cursor()
 
     # if sale attempted, get variables and perform validation
@@ -306,14 +313,18 @@ def sell():
         except:
             error = "Enter a valid amount of shares."
             flash(error)
-            return render_template("sell.html")
-        if shares < 0:
+            return redirect("/sell")
+        if shares <= 0:
             error = "Enter a valid amount of shares."
             flash(error)
-            return render_template("sell.html")        
+            return redirect("/sell")
         
         # Validate user has enough shares to cover sale and update holdings
         symbol = request.form.get("symbol")
+        if not symbol:
+            error = "Please select a stock to sell from your list."
+            flash(error)
+            return redirect("/sell")
         current_holdings_sql = "SELECT * FROM holdings WHERE id = %s AND stock_symbol = %s"
         cursor.execute(current_holdings_sql, (session["user_id"], symbol,))
         current_holdings = cursor.fetchall()

@@ -3,16 +3,10 @@ body {
 }
 
 .main {
-    margin-top: 50px;
+    margin-top: 30px;
 }
 
 /* Size for brand */
-/* .navbar {
-    position: fixed;
-    top: 0;
-    width: 100%;
-} */
-
 nav .navbar-brand
 {
     font-size: xx-large;
@@ -40,12 +34,17 @@ nav .navbar-brand .green
     color: #537fbe;
 }
 
+.messages {
+    color: #537fbe;
+    font-style: italic;
+}
+
 /* article grid */
 .custom-container {
     display: grid;
     grid-template-columns: 1fr 3fr;
     gap: 5px;
-    margin: 0 ;
+    margin: 0;
     padding: 0;
     border: 0;
     text-align: left;
@@ -56,6 +55,25 @@ nav .navbar-brand .green
     grid-row: span 3;
     width: 100%;
     height: 100%;
+    aspect-ratio: 4/3;
+}
+
+@media (max-width: 480px) {
+    .custom-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 5px;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        text-align: left;
+        font-size: 1.25rem;
+    }
+    .article-image {
+        width: 100%;
+        height: 100%;
+        aspect-ratio: 4/3;
+    }
 }
 
 .table {
